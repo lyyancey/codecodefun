@@ -145,7 +145,62 @@ awk 'BEGIN{print 1+1}'
 
 ### awk 的环境变量
 
-| 变量        | 描述 |
-| ----------- | ---- |
-| FIELDWIDTHS |      |
+|    变量     |                             描述                             |
+| :---------: | :----------------------------------------------------------: |
+| FIELDWIDTHS | 以空格分离的数字列表，用空格定义每个数据字段的精确宽度，自定义列宽 |
+|     FS      |                       输入字段分隔符号                       |
+|     OFS     |                       输出字段分隔符号                       |
+|     RS      |                        输入记录分隔符                        |
+|     ORS     |                        输出记录分隔符                        |
+
+```
+FIELDWIDTHS : 重新定义列宽并打印,注意不可以使用$0打印所有,因为$0是打印本行全内容,不会打印你定义的字段
+awk 'BEGIN{FIELDWIDTHS="5 2 8"}NR==1{print $1,$2,$3}' etc/passwd
+FS 设置输入字段分隔符
+awk 'BEGIN{FS=":"}$1 !~"ro"{print $0}' passwd
+awk 'BEGIN{FS=":"}$1=="root"{print $0}' passwd
+OFS 设置输出字段分隔符
+awk 'BEGIN{FS=":";OFS="-"}$1=="root"{print $1,$3,$5}'
+awk 'BEGIN{RS=""}{print $1,$2,$3}'
+awk 'BEGIN{RS="";ORS="####"}{print $1,$2,$3}' num
+```
+
+
+
+### awk流程控制的例子
+
+```
+# if 语句
+awk {if($1>5)print $0}
+awk '{if($1<5)print $1*2;else print $1/2}' num
+# for 
+awk -v 'sum=0' '{sum+=$1}END{print sum}' num
+awk {sum=0;for(i=1;i<4;i++){sum+=$i} print sum}' num
+# while
+awk '{sum=0;i=1;while(i<150){sum+=$i;i++}print $sum}' num
+# do while
+awk '{sum=0;i=1;do{sum+=$i;i++}while(sum<150);print sum}' num2
+# break
+awk '{sum=0;i=1;while(i<4){sum+=$i;if(sum>150)break;i++}print sum}'
+```
+
+### awk 小技巧
+
+```
+学习用例
+1 the quick brown fox jumps over the lazy cat . dog
+2 the quick brown fox jumps over the lazy cat . dog
+3 the quick brown fox       jumps over the lazy cat . dog
+4 the quick brown fox jumps over the lazy cat . dog
+5 the quick brown fox jumps over the lazy cat . dog
+
+打印test文本的行数
+awk 'END{print NR}' test
+打印test文本最后一行内容
+awk 'END{print $0}' test
+打印test文本最后一行的列数
+awk 'END{print NF}' test
+```
+
+
 
